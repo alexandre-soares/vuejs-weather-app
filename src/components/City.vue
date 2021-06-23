@@ -1,5 +1,5 @@
 <template>
-  <div class="city">
+  <router-link tag="div" :to="{name: 'Weather', params: { city: this.city.city }}"  class="city">
     <i v-if="edit" @click="removeCity" class="far fa-trash-alt edit" ref="edit"></i>
     <span>{{ this.city.city }}</span>
     <div class="weather">
@@ -15,7 +15,7 @@
       ></video>
       <div class="bg-overlay"></div>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script>
@@ -38,6 +38,13 @@ export default {
       }).then(() => {
         db.collection('cities').doc(this.id).delete();
       })
+    },
+    goToWeather(e) {
+      if (e.target === this.$refs.edit) {
+        //
+      } else {
+        this.$router.push({ name: 'Weather', params: { city: this.city.city }})
+      }
     }
   },
 };
@@ -45,6 +52,7 @@ export default {
 
 <style lang="scss" scoped>
 .city {
+  cursor: pointer;
   display: flex;
   position: relative;
   flex-direction: column;
