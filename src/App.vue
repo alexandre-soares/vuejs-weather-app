@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Navigation class="navigation"/>
-    <router-view />
+    <router-view v-bind:cities="cities"/>
   </div>
 </template>
 
@@ -28,12 +28,12 @@ export default {
         snap.docChanges().forEach(async (doc) => {
           if (doc.type === 'added') {
             try {
-              const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${doc.doc.data().city}&APPID=${this.APIkey}`)
+              const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${doc.doc.data().city}&&units=metric&APPID=${this.APIkey}`)
               const data = response.data
               firebaseDB.doc(doc.doc.id).update({
                 currentWeather: data
               }).then(() => {
-                this.cities.push(doc.doc.data)
+                this.cities.push(doc.doc.data())
               })
             } catch (error) {
               console.log(error);
