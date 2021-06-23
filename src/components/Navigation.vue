@@ -41,6 +41,7 @@ header {
   .right {
     i {
       font-size: 20px;
+      cursor: pointer;
     }
     i:nth-child(2),
     i:nth-child(3) {

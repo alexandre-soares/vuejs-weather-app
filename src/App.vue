@@ -1,6 +1,7 @@
-<template>
+<template> 
   <div id="app">
-    <Navigation class="navigation"/>
+    <Modal v-if="modalOpen" v-on:close-modal="toggleModal" :APIkey="APIkey" />
+    <Navigation v-on:add-city="toggleModal"/>
     <router-view v-bind:cities="cities"/>
   </div>
 </template>
@@ -9,13 +10,15 @@
 import axios from "axios"
 import db from "./firebase/firebaseInit"
 import Navigation from './components/Navigation.vue'
+import Modal from './components/Modal.vue'
 export default {
-  components: { Navigation },
+  components: { Navigation, Modal },
   name: "App",
   data() {
     return {
-      APIkey: "a700f9451c06ddb9940a4f1fefa2b15c",
-      cities: []
+      APIkey: "2607165be078009df4ed9e8d2493a4e1",
+      cities: [],
+      modalOpen: null
     }
   },
   created () {
@@ -41,7 +44,10 @@ export default {
           }
         });
       })
-    }
+    },
+    toggleModal() {
+      this.modalOpen = !this.modalOpen;
+    },
   },
 }
 </script>
