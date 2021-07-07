@@ -1,23 +1,34 @@
 <template>
   <div id="app">
-    <Modal v-if="modalOpen" v-on:close-modal="toggleModal" :APIkey="APIkey" />
-    <Navigation
-      v-on:add-city="toggleModal"
-      v-on:edit-city="toggleEdit"
-      :addCityActive="addCityActive"
-      :isDay="isDay"
-      :isNight="isNight"
-    />
-    <router-view
-      v-bind:cities="cities"
-      :edit="edit"
-      :APIkey="APIkey"
-      v-on:is-day="dayTime"
-      v-on:is-night="nightTime"
-      v-on:resetDays="resetDays"
-      :isDay="isDay"
-      :isNight="isNight"
-    />
+    <div v-if="isLoading" class="loading">
+      <span></span>
+    </div>
+    <div v-else class="app">
+      <Modal
+        v-if="modalOpen"
+        v-on:close-modal="toggleModal"
+        :APIkey="APIkey"
+        :cities="cities"
+      />
+      <Navigation
+        v-on:add-city="toggleModal"
+        v-on:edit-city="toggleEdit"
+        :addCityActive="addCityActive"
+        :isDay="isDay"
+        :isNight="isNight"
+      />
+      <router-view
+        v-bind:cities="cities"
+        :edit="edit"
+        :APIkey="APIkey"
+        v-on:is-day="dayTime"
+        v-on:is-night="nightTime"
+        v-on:resetDays="resetDays"
+        :isDay="isDay"
+        :isNight="isNight"
+        v-on:add-city="toggleModal"
+      />
+    </div>
   </div>
 </template>
 
@@ -38,6 +49,7 @@ export default {
       addCityActive: null,
       isDay: null,
       isNight: null,
+      isLoading: true,
     };
   },
   created() {
@@ -48,6 +60,9 @@ export default {
     getCityWeather() {
       let firebaseDB = db.collection("cities");
       firebaseDB.onSnapshot((snap) => {
+        if (snap.docs.length === 0) {
+          this.isLoading = false;
+        }
         snap.docChanges().forEach(async (doc) => {
           if (doc.type === "added" && !doc.doc.Nd) {
             try {
@@ -64,6 +79,7 @@ export default {
                 })
                 .then(() => {
                   this.cities.push(doc.doc.data());
+                  this.isLoading = false;
                 });
             } catch (error) {
               console.log(error);
@@ -137,6 +153,31 @@ export default {
   height: 100vh;
   .container {
     padding: 0 20px;
+  }
+}
+
+.loading {
+  @keyframes spin {
+    to {
+      transform: rotateZ(360deg);
+    }
+  }
+
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    display: block;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border: 2px solid transparent;
+    border-top-color: #142a5f;
+    border-radius: 50%;
+    animation: spin ease 1000ms infinite;
   }
 }
 </style>

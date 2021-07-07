@@ -46,6 +46,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.fas, .far {
+  cursor: pointer
+}
+
 .add-city {
   background-color: #313640;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),

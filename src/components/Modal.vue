@@ -2,7 +2,13 @@
   <div @click="closeModal" class="modal" ref="modal">
     <div class="modal-wrap" ref="modalWrap">
       <label for="city-name">Enter Location:</label>
-      <input type="text" name="city-name" placeholder="Search By City Name" v-model="city" />
+      <input
+        type="text"
+        name="city-name"
+        placeholder="Search By City Name"
+        v-model="city"
+        ref="email"
+      />
       <button @click="addCity">Add</button>
     </div>
   </div>
@@ -13,11 +19,14 @@ import axios from "axios";
 import db from "../firebase/firebaseInit";
 export default {
   name: "modal",
-  props: ["APIkey"],
+  props: ["APIkey", "cities"],
   data() {
     return {
       city: "",
     };
+  },
+  mounted() {
+    this.$refs.email.focus();
   },
   methods: {
     closeModal(e) {
@@ -27,21 +36,29 @@ export default {
     },
     async addCity() {
       if (this.city === "") {
-        alert("Field cannot be empty");
+        alert("field cannot be empty");
+      } else if (
+        this.cities.some((res) => res.city === this.city.toLowerCase())
+      ) {
+        alert(`${this.city} already exists!`);
       } else {
-        const res = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?q=${this.city}&units=metric&APPID=${this.APIkey}`
-        );
-        const data = await res.data;
-        db.collection("cities")
-          .doc()
-          .set({
-            city: this.city,
-            currentWeather: data,
-          })
-          .then(() => {
-            this.$emit("close-modal");
-          });
+        try {
+          const res = await axios.get(
+            `https://api.openweathermap.org/data/2.5/weather?q=${this.city}&units=metric&APPID=${this.APIkey}`
+          );
+          const data = await res.data;
+          db.collection("cities")
+            .doc()
+            .set({
+              city: this.city.toLowerCase(),
+              currentWeather: data,
+            })
+            .then(() => {
+              this.$emit("close-modal");
+            });
+        } catch {
+          alert(`${this.city} does not exist, please try again!`);
+        }
       }
     },
   },
@@ -67,7 +84,8 @@ export default {
     width: 80%;
     padding: 20px;
     background-color: #31363d;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
     input {
       color: #fff;
       border: none;
@@ -81,13 +99,14 @@ export default {
       }
     }
     button {
-      cursor: pointer;
       background-color: #222325;
       color: #fff;
+      cursor: pointer;
       padding: 6px 20px;
       border-radius: 8px;
       border: none;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
   }
 }

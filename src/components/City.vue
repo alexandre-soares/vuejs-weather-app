@@ -1,55 +1,76 @@
 <template>
-  <router-link tag="div" :to="{name: 'Weather', params: { city: this.city.city }}"  class="city">
-    <i v-if="edit" @click="removeCity" class="far fa-trash-alt edit" ref="edit"></i>
+  <div @click="goToWeather" class="city">
+    <i
+      v-if="edit"
+      @click="removeCity"
+      class="far fa-trash-alt edit"
+      ref="edit"
+      style="cursor: pointer"
+    ></i>
     <span>{{ this.city.city }}</span>
     <div class="weather">
       <span>{{ Math.round(this.city.currentWeather.main.temp) }}&deg;</span>
-      <img :src="require(`../../public/conditions/${this.city.currentWeather.weather[0].icon}.svg`)" alt="" />
+      <img
+        :src="
+          require(`../../public/conditions/${this.city.currentWeather.weather[0].icon}.svg`)
+        "
+        alt=""
+      />
     </div>
     <div class="video">
       <video
         autoplay
         loop
         muted
-        :src="require(`../../public/videos/${this.city.currentWeather.weather[0].icon}.mp4`)"
+        :src="
+          require(`../../public/videos/${this.city.currentWeather.weather[0].icon}.mp4`)
+        "
       ></video>
       <div class="bg-overlay"></div>
     </div>
-  </router-link>
+  </div>
 </template>
 
 <script>
 import db from "../firebase/firebaseInit";
-
 export default {
   name: "city",
   props: ["city", "edit"],
+  created() {},
   data() {
     return {
-      id: null
-    }
+      id: null,
+    };
   },
   methods: {
     removeCity() {
-      db.collection('cities').where('city', '==', `${this.city.city}`).get().then(docs => {
-        docs.forEach(doc => {
-          this.id = doc.id
+      db.collection("cities")
+        .where("city", "==", `${this.city.city}`)
+        .get()
+        .then((docs) => {
+          docs.forEach((doc) => {
+            this.id = doc.id;
+          });
+        })
+        .then(() => {
+          db.collection("cities")
+            .doc(this.id)
+            .delete();
         });
-      }).then(() => {
-        db.collection('cities').doc(this.id).delete();
-      })
     },
     goToWeather(e) {
       if (e.target === this.$refs.edit) {
         //
       } else {
-        this.$router.push({ name: 'Weather', params: { city: this.city.city }})
+        this.$router.push({
+          name: "Weather",
+          params: { city: this.city.city },
+        });
       }
-    }
+    },
   },
 };
 </script>
-
 <style lang="scss" scoped>
 .city {
   cursor: pointer;
@@ -71,11 +92,6 @@ export default {
     bottom: 0px;
     left: 0px;
   }
-
-  i {
-    cursor: pointer;
-  }
-
   span {
     z-index: 1;
     text-transform: capitalize;
